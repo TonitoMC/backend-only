@@ -1,0 +1,28 @@
+services:
+  db:
+    build:
+      context: ./db
+    container_name: series-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: series
+    ports:
+      - "5433:5432"
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+    container_name: series-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=series
+    restart: always
