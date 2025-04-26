@@ -6,6 +6,6 @@ type Serie struct {
 	Title          string `json:"title"`
 	Ranking        int    `json:"ranking"`
 	Status         string `json:"status"`
-	CurrentEpisode string `json:"current_episode"`
-	TotalEpisodes  string `json:"total_episodes"`
+	CurrentEpisode int    `json:"lastEpisodeWatched"`
+	TotalEpisodes  int    `json:"totalEpisodes"`
 }

@@ -28,7 +28,7 @@ func main() {
 
 	// CORS setup
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:80"},
+		AllowedOrigins:   []string{"http://localhost"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -36,8 +36,19 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	// GET /api/series handler
-	r.Get("/api/series", handlers.GetSeriesHandler(db))
+	// REST routing
+	r.Route("/api/series", func(r chi.Router) {
+		// Get / Post
+		r.Get("/", handlers.GetSeriesHandler(db))
+		r.Post("/", handlers.PostSeriesHandler(db))
+
+		// Subroute for individual series
+		r.Route("/{seriesID}", func(r chi.Router) {
+			r.Get("/", handlers.GetSeriesByIDHandler(db))
+			r.Put("/", handlers.PutSeriesHandler(db))
+			r.Delete("/", handlers.DeleteSeriesHandler(db))
+		})
+	})
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
