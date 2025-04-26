@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS series (
   id SERIAL PRIMARY KEY,
   title VARCHAR UNIQUE NOT NULL,
-  ranking INTEGER NOT NULL,
+  ranking INTEGER NOT NULL CHECK (ranking >= 0),
   status VARCHAR NOT NULL CHECK (status IN ('Watching', 'Plan to Watch', 'Dropped', 'Completed')),
   current_episode INTEGER NOT NULL,
   total_episodes INTEGER NOT NULL

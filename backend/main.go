@@ -29,7 +29,7 @@ func main() {
 	// CORS setup
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
@@ -44,9 +44,16 @@ func main() {
 
 		// Subroute for individual series
 		r.Route("/{seriesID}", func(r chi.Router) {
+			// Get / Put / Delete routes w/ ID
 			r.Get("/", handlers.GetSeriesByIDHandler(db))
 			r.Put("/", handlers.PutSeriesHandler(db))
 			r.Delete("/", handlers.DeleteSeriesHandler(db))
+
+			// Patch routes
+			r.Patch("/status", handlers.PatchStatusHandler(db))
+			r.Patch("/episode", handlers.PatchEpisodeHandler(db))
+			r.Patch("/upvote", handlers.PatchUpvoteHandler(db))
+			r.Patch("/downvote", handlers.PatchDownvoteHandler(db))
 		})
 	})
 
