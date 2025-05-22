@@ -1,0 +1,19 @@
+
+# air.toml
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# Command to build your application.
+cmd = "go build -o ./tmp/main ."
+bin = "tmp/main"
+include_ext = ["go"]
+exclude_dir = ["vendor", "tmp"]
+delay = 1000
+
+[color]
+main = "yellow"
+watcher = "cyan"
+
+[log]
+time = true

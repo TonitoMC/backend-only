@@ -13,10 +13,12 @@ services:
 
   backend:
     build:
-      context: ./backend
-    container_name: series-backend
+      context: ./series-tracker
+    container_name: series-tracker
     ports:
       - "8080:8080"
+    volumes:
+      - ./series-tracker:/app:Z
     depends_on:
       - db
     environment:
@@ -26,3 +28,5 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=series
     restart: always
+    command: >
+      sh -c "/go/bin/swag init --output ./docs && air -c .air.toml"
