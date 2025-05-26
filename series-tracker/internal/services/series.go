@@ -1,13 +1,20 @@
 package services
 
 import (
-	"errors"
+	"fmt"
+
+	domainErrors "series-tracker/internal/errors"
 
 	"series-tracker/internal/models"
 	"series-tracker/internal/repositories"
 )
 
-// Set of valid statuses for the serie, used in various
+// This file defines and implements the series service, this is the layer
+// where our business logic lies and we coordinate our HTTP handlers with
+// the repository for linking requests to our data storage. The methods here
+// correspond 1:1 to an HTTP handler
+
+// Set of valid statuses for the serie, used in various points
 var validStatuses = map[string]bool{
 	"Watching":      true,
 	"Plan to Watch": true,
@@ -65,7 +72,7 @@ func (s *seriesService) GetSerieByID(id int) (*models.Serie, error) {
 	// Get the series from the repository
 	serie, err := s.seriesRepo.GetSerieByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service GetSerieByID: failed to get series with id %d: %w", id, err)
 	}
 
 	// Return result
@@ -74,10 +81,14 @@ func (s *seriesService) GetSerieByID(id int) (*models.Serie, error) {
 
 // CreateSerie creates a new series
 func (s *seriesService) CreateSerie(serie models.Serie) (*models.Serie, error) {
+	// Validate the input
+	if !validateSerie(serie) {
+		return nil, fmt.Errorf("service CreateSerie: failed to validate series: %w", domainErrors.ErrSeriesConflict)
+	}
 	// Create series in the repository
 	createdSerie, err := s.seriesRepo.CreateNewSerie(serie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service CreateSerie: failed to create series: %w", err)
 	}
 
 	return createdSerie, nil
@@ -85,9 +96,14 @@ func (s *seriesService) CreateSerie(serie models.Serie) (*models.Serie, error) {
 
 // UpdateSerie updates a series with all values detailed in the struct based on the ID
 func (s *seriesService) UpdateSerie(serie models.Serie) (*models.Serie, error) {
+	// Validate the input
+	if !validateSerie(serie) {
+		return nil, fmt.Errorf("service UpdateSerie: failed to validate series: %w", domainErrors.ErrSeriesConflict)
+	}
+
 	updatedSerie, err := s.seriesRepo.UpdateSerie(serie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service UpdateSerie: failed to update series with id %d: %w", serie.ID, err)
 	}
 
 	return updatedSerie, nil
@@ -96,7 +112,7 @@ func (s *seriesService) UpdateSerie(serie models.Serie) (*models.Serie, error) {
 // DeleteSerie deletes a serie by its ID
 func (s *seriesService) DeleteSerie(id int) error {
 	if err := s.seriesRepo.DeleteSerie(id); err != nil {
-		return err
+		return fmt.Errorf("service DeleteSerie: failed to delete series with id %d: %w", id, err)
 	}
 	return nil
 }
@@ -105,13 +121,13 @@ func (s *seriesService) DeleteSerie(id int) error {
 func (s *seriesService) UpdateSerieStatus(id int, status string) (*models.Serie, error) {
 	// Check validity of given status
 	if !validStatuses[status] {
-		return nil, errors.New("invalid status")
+		return nil, fmt.Errorf("service UpdateSerieStatus: failed to update serie with id %d invalid status %s: %w", id, status, domainErrors.ErrInvalidInput)
 	}
 
 	// Get series information from repository
 	serie, err := s.seriesRepo.GetSerieByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service UpdateSerieStatus: failed to update serie with id %d and status %s: %w", id, status, err)
 	}
 
 	// Set the status to the updated one
@@ -120,8 +136,9 @@ func (s *seriesService) UpdateSerieStatus(id int, status string) (*models.Serie,
 	// Call repository to update
 	updatedSerie, err := s.seriesRepo.UpdateSerie(*serie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service UpdateSerieStatus: failed to update serie with id %d and status %s: %w", id, status, err)
 	}
+
 	return updatedSerie, nil
 }
 
@@ -130,7 +147,7 @@ func (s *seriesService) UpvoteSerie(id int) (*models.Serie, error) {
 	// Get series information from repository
 	serie, err := s.seriesRepo.GetSerieByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service UpvoteSerie: failed to upvote serie with id %d: %w", id, err)
 	}
 
 	// Increment ranking score by 1
@@ -138,7 +155,7 @@ func (s *seriesService) UpvoteSerie(id int) (*models.Serie, error) {
 
 	updatedSerie, err := s.seriesRepo.UpdateSerie(*serie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service UpvoteSerie: failed to upvote serie with id %d: %w", id, err)
 	}
 	return updatedSerie, nil
 }
@@ -148,11 +165,11 @@ func (s *seriesService) DownvoteSerie(id int) (*models.Serie, error) {
 	// Get series information from repository
 	serie, err := s.seriesRepo.GetSerieByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service DownvoteSerie: failed to downvote serie with id %d: %w", id, err)
 	}
 
 	if serie.Ranking <= 0 {
-		return nil, errors.New("series can't be downvoted further")
+		return nil, fmt.Errorf("service DownvoteSerie: failed to downvote serie with id %d - ranking too low: %w", id, domainErrors.ErrSeriesConflict)
 	}
 
 	// Decrease value by one
@@ -160,7 +177,7 @@ func (s *seriesService) DownvoteSerie(id int) (*models.Serie, error) {
 
 	updatedSerie, err := s.seriesRepo.UpdateSerie(*serie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service DownvoteSerie: failed to downvote serie with id %d: %w", id, err)
 	}
 	return updatedSerie, nil
 }
@@ -170,11 +187,11 @@ func (s *seriesService) IncrementSerieEpisode(id int) (*models.Serie, error) {
 	// Get series information from repository
 	serie, err := s.seriesRepo.GetSerieByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service IncrementEpisode: failed to increment serie episode for id %d: %w", id, err)
 	}
 
 	if serie.CurrentEpisode >= serie.TotalEpisodes {
-		return nil, errors.New("series hit max episodes")
+		return nil, fmt.Errorf("service IncrementEpisode: failed to increment serie episode for id %d - reached last episode: %w", id, domainErrors.ErrSeriesConflict)
 	}
 
 	// Increment value by one
@@ -182,7 +199,15 @@ func (s *seriesService) IncrementSerieEpisode(id int) (*models.Serie, error) {
 
 	updatedSerie, err := s.seriesRepo.UpdateSerie(*serie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("service IncrementEpisode: failed to increment serie episode for id %d: %w", id, err)
 	}
 	return updatedSerie, nil
+}
+
+// Utility function to validate serie validity for inserts and udpates
+func validateSerie(serie models.Serie) bool {
+	if serie.Title == "" || serie.Ranking <= 0 || serie.CurrentEpisode <= 0 || serie.TotalEpisodes <= 0 || !validStatuses[serie.Status] {
+		return false
+	}
+	return true
 }

@@ -15,22 +15,34 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// This project is a REST API for managing TV series. It provides endpoints for creating,
+// reading, updating and deleting series data, as well as additional operations like upvoting,
+// downvoting and episode tracking. Full instructions on how to utilize it can be found inside
+// of the swagger documentation as well as the README.md in the root of the repository. This project
+// implements a layered architecture with repositories, services and handlers for a clear separation
+// of concerns, where each of them can be found in their respective modules.
+
 func main() {
+	// Initialize the database connection
 	dbConn, err := database.NewDatabaseConnection()
 	if err != nil {
 		log.Fatalf("FATAL: No db")
 	}
 	defer dbConn.Close()
 
+	// Initialize the repository, service & handler for series
 	seriesRepo := repositories.NewSeriesRepository(dbConn)
 	seriesService := services.NewSeriesService(seriesRepo)
 	seriesHandler := handlers.NewSeriesHandler(seriesService)
 
+	// Configure the router
 	routerConfig := &api.RouterConfig{
 		SeriesHandler: seriesHandler,
 	}
 
+	// Echo setup
 	e := echo.New()
+	e.HTTPErrorHandler = handlers.CustomHTTPErrorHandler
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -48,6 +60,4 @@ func main() {
 	api.SetupRoutes(e, routerConfig)
 
 	e.Logger.Fatal(e.Start(":8080"))
-
-	e.Logger.Print("hola")
 }

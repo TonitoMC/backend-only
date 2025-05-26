@@ -1,24 +1,41 @@
 definitions:
+  models.ErrorResponse:
+    properties:
+      code:
+        description: Machine-friendly error message for handling in front-end
+        example: lowercase_and_underscores
+        type: string
+      message:
+        description: Human-friendly error message for the user
+        example: Capitalization and spaces
+        type: string
+    type: object
   models.Serie:
     properties:
       id:
         description: Unique identifier for the series
+        example: 10
         type: integer
       lastEpisodeWatched:
         description: Last episode watched of the series
+        example: 15
         type: integer
       ranking:
         description: Score of the series used for ranking
+        example: 10
         type: integer
       status:
         description: Current status of the series; "Watching", "Plan to Watch", "Dropped",
           "Completed"
+        example: Watching
         type: string
       title:
         description: Title of the series
+        example: Breaking Bad
         type: string
       totalEpisodes:
         description: Quantity of episodes in the series
+        example: 24
         type: integer
     type: object
 info:
@@ -33,23 +50,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success, array of all fetched series
           schema:
             items:
               $ref: '#/definitions/models.Serie'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
-          description: Internal Server Error
+          description: Internal Server Error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Retrieve all series
       tags:
       - series
@@ -69,21 +78,21 @@ paths:
       - application/json
       responses:
         "201":
-          description: Newly created series
+          description: Created, newly created series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Bad request, e.g, invalid input
+          description: Invalid input, eg. invalid input fields
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Series conflict, eg. negative ranking or duplicate title
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal Server Error, e.g, database error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create a new series
       tags:
       - series
@@ -103,15 +112,17 @@ paths:
       - application/json
       responses:
         "204":
-          description: No content
+          description: No Content
         "400":
-          description: Bad request, e.g, invalid input
+          description: Invalid input, eg. non-integer ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Series not found, eg. ID that doesn't exist in the databas
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal Server Error, e.g, database error
+          description: Internal server error, eg. database error
           schema:
             additionalProperties:
               type: string
@@ -133,21 +144,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success, fetched series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Bad Request
+          description: Invalid input, eg. non-integer ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Series not found, eg. an ID that doesn't exist in the database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Retrieve a series by ID
       tags:
       - series
@@ -165,21 +176,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success, updated series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Bad Request
+          description: Invalid input, eg. non-integer ID or invalid input fields
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Series not found, eg. ID that doesn't exist in the database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Series conflict, eg. invalid values for episode or negative
+            ranking
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Update an existing series
       tags:
       - series
@@ -199,27 +215,25 @@ paths:
       - application/json
       responses:
         "200":
-          description: Series successfully downvoted
+          description: Success, updated series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Invalid series ID
+          description: Invalid input, eg. non-integer ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
-          description: Series not found
+          description: Series not found, eg. ID that doesn't exist in the database
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Series conflict, eg. downvoting past 0
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Decrease series score
       tags:
       - series
@@ -238,27 +252,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully updated series status
+          description: Success, updated series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Invalid input or status value
+          description: Invalid input, eg. non-integer ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
-          description: Series not found
+          description: Series not found, eg. ID that doesn't exist in the database
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Series conflict, eg. trying to increment episode past last
+            one
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Advance series episode count
       tags:
       - series
@@ -277,27 +290,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully updated series status
+          description: Success, updated series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Invalid input or status value
+          description: Invalid input, eg. non-integer ID or invalid status
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
-          description: Series not found
+          description: Series not found, eg. ID that doesn't exist in the database
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Update series status
       tags:
       - series
@@ -317,27 +324,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: Series successfully upvoted
+          description: Success, updated series
           schema:
             $ref: '#/definitions/models.Serie'
         "400":
-          description: Invalid series ID
+          description: Invalid input, eg. non-integer ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
-          description: Series not found
+          description: Series not found, eg. ID that doesn't exist in the database
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal server error, unspecified internal errors
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Increase series score
       tags:
       - series

@@ -30,7 +30,7 @@ const docTemplate = `{
                 "summary": "Retrieve all series",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success, array of all fetched series",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -38,22 +38,10 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal Server Error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -83,27 +71,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Newly created series",
+                        "description": "Created, newly created series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Bad request, e.g, invalid input",
+                        "description": "Invalid input, eg. invalid input fields",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Series conflict, eg. negative ranking or duplicate title",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error, e.g, database error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -133,27 +121,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success, fetched series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input, eg. non-integer ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Series not found, eg. an ID that doesn't exist in the database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -181,27 +169,33 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success, updated series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input, eg. non-integer ID or invalid input fields",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Series not found, eg. ID that doesn't exist in the database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Series conflict, eg. invalid values for episode or negative ranking",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -229,19 +223,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No content"
+                        "description": "No Content"
                     },
                     "400": {
-                        "description": "Bad request, e.g, invalid input",
+                        "description": "Invalid input, eg. non-integer ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Series not found, eg. ID that doesn't exist in the databas",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error, e.g, database error",
+                        "description": "Internal server error, eg. database error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -276,36 +273,33 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Series successfully downvoted",
+                        "description": "Success, updated series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Invalid series ID",
+                        "description": "Invalid input, eg. non-integer ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Series not found",
+                        "description": "Series not found, eg. ID that doesn't exist in the database",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Series conflict, eg. downvoting past 0",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -335,36 +329,33 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully updated series status",
+                        "description": "Success, updated series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Invalid input or status value",
+                        "description": "Invalid input, eg. non-integer ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Series not found",
+                        "description": "Series not found, eg. ID that doesn't exist in the database",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Series conflict, eg. trying to increment episode past last one",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -394,36 +385,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully updated series status",
+                        "description": "Success, updated series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Invalid input or status value",
+                        "description": "Invalid input, eg. non-integer ID or invalid status",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Series not found",
+                        "description": "Series not found, eg. ID that doesn't exist in the database",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -453,36 +435,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Series successfully upvoted",
+                        "description": "Success, updated series",
                         "schema": {
                             "$ref": "#/definitions/models.Serie"
                         }
                     },
                     "400": {
-                        "description": "Invalid series ID",
+                        "description": "Invalid input, eg. non-integer ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Series not found",
+                        "description": "Series not found, eg. ID that doesn't exist in the database",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal server error, unspecified internal errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -490,32 +463,53 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "Machine-friendly error message for handling in front-end",
+                    "type": "string",
+                    "example": "lowercase_and_underscores"
+                },
+                "message": {
+                    "description": "Human-friendly error message for the user",
+                    "type": "string",
+                    "example": "Capitalization and spaces"
+                }
+            }
+        },
         "models.Serie": {
             "type": "object",
             "properties": {
                 "id": {
                     "description": "Unique identifier for the series",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 10
                 },
                 "lastEpisodeWatched": {
                     "description": "Last episode watched of the series",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 15
                 },
                 "ranking": {
                     "description": "Score of the series used for ranking",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 10
                 },
                 "status": {
                     "description": "Current status of the series; \"Watching\", \"Plan to Watch\", \"Dropped\", \"Completed\"",
-                    "type": "string"
+                    "type": "string",
+                    "example": "Watching"
                 },
                 "title": {
                     "description": "Title of the series",
-                    "type": "string"
+                    "type": "string",
+                    "example": "Breaking Bad"
                 },
                 "totalEpisodes": {
                     "description": "Quantity of episodes in the series",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 24
                 }
             }
         }
