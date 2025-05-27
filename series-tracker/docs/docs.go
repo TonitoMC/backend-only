@@ -240,10 +240,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error, eg. database error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }

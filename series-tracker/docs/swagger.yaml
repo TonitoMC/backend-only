@@ -124,9 +124,7 @@ paths:
         "500":
           description: Internal server error, eg. database error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Remove an existing series from the database
       tags:
       - series
