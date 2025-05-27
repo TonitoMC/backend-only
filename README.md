@@ -5,6 +5,7 @@ monitor their progress, and organize their viewing experience. Developed as part
 required to implement the necessary API endpoints to handle its functionality. This project implements the following technologies for the API:
 
 - [Go](https://go.dev) as the programming language
+- [Echo](https://echo.labstack.com) as a lightweight HTTP library for Go
 - [Air](https://github.com/air-verse/air) for hot-reloading during development
 - [Docker](https://www.docker.com) for containerization
 - [Docker Compose](https://docs.docker.com/compose/) for managing different containers & volumes
