@@ -48,7 +48,7 @@ Where the name for running must match what you've named the container when build
 
 ## Documentation
 ### Swagger
-This project includes documentation via Swagger, after running the project you can visit the route '/swagger/' or simply click [here](http://localhost:8080/swagger/) to view the documentation.
+This project includes documentation via Swagger, after running the project you can visit the route '/swagger/' or simply click [here](http://localhost:8080/swagger/index.html) to view the documentation.
 ### Postman
 I've also included a Postman collection found [here](https://documenter.getpostman.com/view/45312303/2sB2qdgzj).
 
