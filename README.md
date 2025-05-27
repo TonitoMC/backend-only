@@ -14,6 +14,7 @@ required to implement the necessary API endpoints to handle its functionality. T
 In this README.md you'll find instructions on how to run the project, endpoint documentation (how to interact with the API) and project documentation (structure & general information for further development)
 
 ### Example
+![image](https://github.com/user-attachments/assets/317797e6-e387-4812-b782-4df3c148d57f)
 
 ## Running this Project
 ### Dependencies
